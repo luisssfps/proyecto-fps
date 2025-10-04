@@ -1,0 +1,140 @@
+@startuml
+' Diagrama de Clases
+
+skinparam classAttributeIconSize 0
+
+package models {
+  class Customer {
+    -name: String
+    -contactInfo: String
+    
+    +Customer(name: String, contactInfo: String)
+    +getName(): String
+    +setName(name:String): void
+    +getContactInfo(): String
+    +setContactInfo(contactInfo: String): void
+    +toString(): String
+  }
+
+  class Table {
+    -tableNumber: int
+    -capacity: int
+    -isAvailable: boolean
+
+    +Table(tableNumber: int, capacity: int)
+    +getTableNumber(): int
+    +setTableNumber(tableNumber: int): void
+    +getCapacity(): int
+    +setCapacity(capacity: int): void
+    +isAvailable(): boolean
+    +setAvailable(available: boolean): void
+    +toString(): String
+  }
+
+  class MenuItem {
+    -name: String
+    -description: String
+    -price: BigDecimal
+    -category: String
+
+    +MenuItem(name: String, description: String, price: BigDecimal, category: String)
+    +getName(): String
+    +setName(name: String): void
+    +getDescription(): String
+    +setDescription(description: String): void
+    +getPrice(): BigDecimal
+    +setPrice(price: BigDecimal): void
+    +getCategory(): String
+    +setCategory(category: String): void
+    +toString(): String
+  }
+
+  class Reservation {
+    -customer: Customer
+    -table: Table
+    -reservationTime: LocalDateTime
+    -numberOfGuests: int
+    -status: ReservationStatus
+
+    +Reservation(customer: Customer, table: Table, reservationTime: LocalDateTime, numberOfGuests: int)
+    +getCustomer(): Customer
+    +setCustomer(customer: Customer): void
+    +getTable(): Table
+    +setTable(table: Table): void
+    +getReservationTime(): LocalDateTime
+    +setReservationTime(reservationTime: LocalDateTime): void
+    +getNumberOfGuests(): int
+    +setNumberOfGuests(numberOfGuests: int): void
+    +getStatus(): ReservationStatus
+    +setStatus(status: ReservationStatus): void
+    +toString(): String
+  }
+
+  enum ReservationStatus {
+    CONFIRMED
+    CANCELED
+    PENDING
+  }
+
+  class Order {
+    -customer: Customer
+    -table: Table
+    -status: OrderStatus
+    -items: List<MenuItem>
+
+    +Order(customer: Customer, table: Table, status: OrderStatus, items: List<MenuItem>)
+    +getCustomer(): Customer
+    +setCustomer(customer: Customer): void
+    +getTable(): Table
+    +setTable(table: Table): void
+    +getStatus(): OrderStatus
+    +setStatus(status: OrderStatus): void
+    +addItem(item: MenuItem): void
+    +getTotal(): BigDecimal
+    +toString(): String
+  }
+
+  enum OrderStatus {
+    PENDING
+    IN_PROGRESS
+    COMPLETED
+    SERVED
+    CANCELED
+  }
+
+  class Invoice {
+    -order: Order
+    -totalAmount: BigDecimal
+    -paymentMethod: PaymentMethod
+    -issueDate: LocalDateTime
+
+    +Invoice(order: Order, paymentMethod: PaymentMethod)
+    +getOrder(): Order
+    +setOrder(order: Order): void
+    +getTotalAmount(): BigDecimal
+    +setTotalAmount(totalAmount: BigDecimal): void
+    +getPaymentMethod(): PaymentMethod
+    +setPaymentMethod(paymentMethod: PaymentMethod): void
+    +getIssueDate(): LocalDateTime
+    +setIssueDate(issueDate: LocalDateTime): void
+    +toString(): String
+  }
+
+  enum PaymentMethod {
+    CASH
+    CREDIT_CARD
+    DEBIT_CARD
+    BANK_TRANSFER
+  }
+}
+
+' --- Relaciones ---
+
+Reservation o-- Customer : "tiene un"
+Reservation o-- Table : "tiene un"
+Order o-- Customer : "tiene un"
+Order o-- Table : "tiene un"
+Order o-- MenuItem : "tiene varios"
+Invoice o-- Order : "tiene un"
+
+@enduml
