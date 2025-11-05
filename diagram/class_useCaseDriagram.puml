@@ -1,0 +1,31 @@
+@startuml
+' Diagrama de Casos de Uso del Sistema de Restaurante FPS
+
+left to right direction
+
+actor "Cliente" as Client
+actor "Recepcionista" as Receptionist
+actor "Cocinero" as Cook
+actor "Cajero" as Cashier
+
+rectangle "Sistema Restaurante FPS" {
+  usecase "Gestionar Menú" as UC1
+  usecase "Registrar Reserva" as UC2
+  usecase "Tomar Pedido" as UC3
+  usecase "Actualizar Estado Pedido" as UC4
+  usecase "Generar Factura" as UC5
+  usecase "Gestionar Mesas" as UC6
+}
+
+Receptionist -- UC1
+Receptionist -- UC2
+Receptionist -- UC3
+Receptionist -- UC6
+
+Client -- UC2
+
+Cook -- UC4
+
+Cashier -- UC5
+
+@enduml

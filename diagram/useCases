@@ -1,0 +1,80 @@
+Casos de Uso
+CU01: Gestionar Menú
+•	Descripción: Permite al personal autorizado (ej. recepcionista, gerente) añadir, eliminar y consultar los platillos del menú.
+•	Actores: primarios: Recepcionista.
+•	Precondiciones: El usuario debe tener permisos de gestión.
+•	Flujo principal:
+1.	El recepcionista selecciona la opción de gestionar menú.
+2.	El sistema muestra las opciones: ver, añadir, eliminar.
+3.	El recepcionista elige una opción y proporciona los datos necesarios (ej. nombre, precio para añadir; nombre para eliminar).
+4.	El sistema actualiza el menú y la persistencia.
+•	Postcondiciones: El menú queda actualizado.
+________________________________________
+CU02: Registrar Reserva
+•	Descripción: Permite a un cliente o recepcionista registrar una reserva para una fecha y hora específicas.
+•	Actores primarios: Cliente, Recepcionista.
+•	Actores secundarios: Sistema de Mesas.
+•	Precondiciones: El cliente proporciona sus datos y los detalles de la reserva.
+•	Flujo principal:
+1.	El cliente o recepcionista solicita una reserva (fecha, hora, número de personas).
+2.	El sistema verifica la disponibilidad de mesas que cumplan con la capacidad requerida.
+3.	Si hay mesas disponibles, el sistema asigna una, crea la reserva y la guarda con estado CONFIRMADA.
+4.	El sistema notifica la confirmación de la reserva.
+•	Flujos alternativos:
+2.1. Si no hay mesas disponibles, el sistema informa de la no disponibilidad.
+•	Postcondiciones: La reserva queda almacenada en el sistema.
+________________________________________
+CU03: Tomar Pedido
+•	Descripción: Permite a un recepcionista o mesero tomar un pedido para una mesa ocupada.
+•	Actores primarios: Recepcionista.
+•	Precondiciones: La mesa debe estar ocupada (asociada a una reserva o cliente).
+•	Flujo principal:
+1.	El recepcionista selecciona la opción de crear pedido y especifica el número de mesa.
+2.	El sistema crea un nuevo objeto Order asociado a la mesa.
+3.	El recepcionista añade platillos del menú al pedido.
+4.	El sistema actualiza el pedido con los platillos y lo guarda con estado PENDIENTE.
+•	Postcondiciones: El pedido queda registrado y listo para ser preparado.
+________________________________________
+CU04: Actualizar Estado Pedido
+•	Descripción: Permite al cocinero actualizar el estado de un pedido a medida que avanza en la preparación.
+•	Actores primarios: Cocinero.
+•	Precondiciones: Debe existir un pedido registrado en estado PENDIENTE.
+•	Flujo principal:
+1.	El cocinero accede a la lista de pedidos pendientes.
+2.	El sistema muestra los pedidos asociados con sus platillos y mesa correspondiente.
+3.	El cocinero selecciona un pedido y actualiza su estado (ej. EN PREPARACIÓN, LISTO).
+4.	El sistema guarda el nuevo estado del pedido.
+•	Flujos alternativos:
+3.1. Si el pedido ya está marcado como LISTO, el sistema no permite actualizarlo nuevamente.
+•	Postcondiciones: El pedido queda actualizado con su nuevo estado y disponible para su siguiente gestión (entrega o facturación).
+________________________________________
+CU05: Generar Factura
+•	Descripción: Permite al cajero generar una factura para un pedido completado.
+•	Actores primarios: Cajero.
+•	Actores secundarios: Sistema de pagos.
+•	Precondiciones: El pedido debe estar en estado LISTO y asociado a una mesa ocupada.
+•	Flujo principal:
+1.	El cajero selecciona la opción de generar factura e ingresa el número de mesa o pedido.
+2.	El sistema obtiene los platillos del pedido y calcula el total (incluyendo impuestos y/o descuentos).
+3.	El sistema genera la factura con la información del cliente, la mesa y los detalles de consumo.
+4.	El cajero registra el pago (efectivo, tarjeta, u otro).
+5.	El sistema guarda el registro de la factura como PAGADA.
+•	Flujos alternativos:
+4.1. Si el pago no es exitoso, el sistema informa el error y no cierra la factura.
+•	Postcondiciones: La factura queda almacenada y asociada al pedido y mesa correspondiente.
+________________________________________
+CU06: Gestionar Mesas
+•	Descripción: Permite al recepcionista gestionar la disponibilidad y estado de las mesas en el restaurante.
+•	Actores primarios: Recepcionista.
+•	Precondiciones: El recepcionista debe tener permisos de gestión de mesas.
+•	Flujo principal:
+1.	El recepcionista accede a la opción de gestión de mesas.
+2.	El sistema muestra el listado de mesas con sus estados actuales (DISPONIBLE, OCUPADA, RESERVADA).
+3.	El recepcionista puede:
+	Añadir una nueva mesa.
+	Cambiar el estado de una mesa (ej. de DISPONIBLE a OCUPADA).
+	Eliminar una mesa si no está en uso.
+4.	El sistema guarda los cambios realizados.
+•	Flujos alternativos:
+3.1. Si se intenta eliminar una mesa en uso, el sistema muestra un mensaje de error.
+•	Postcondiciones: El estado de las mesas queda actualizado y disponible para las reservas y pedidos.
