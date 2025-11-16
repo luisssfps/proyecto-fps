@@ -1,11 +1,11 @@
 package services;
 
-import exceptions.InvoiceException;
 import models.Invoice;
 import models.Order;
 import models.OrderStatus;
 import models.PaymentMethod;
 import persistence.DataAccessObject;
+import exceptions.InvoiceExceptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,9 +21,9 @@ public class InvoiceService {
     this.invoices = invoiceDao.loadAll();
   }
 
-  public Invoice generateInvoice(Order order, PaymentMethod paymentMethod) throws InvoiceException {
+  public Invoice generateInvoice(Order order, PaymentMethod paymentMethod) throws InvoiceExceptions.InvalidInvoiceOrderStatusException {
     if (order.getStatus() != OrderStatus.COMPLETED && order.getStatus() != OrderStatus.SERVED) {
-      throw new InvoiceException("Cannot generate invoice for an order that is not completed or served.");
+      throw new InvoiceExceptions.InvalidInvoiceOrderStatusException("Cannot generate invoice for an order that is not completed or served.");
     }
 
     Invoice newInvoice = new Invoice(order, paymentMethod);

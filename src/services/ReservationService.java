@@ -1,11 +1,11 @@
 package services;
 
-import exceptions.ReservationException;
 import models.Customer;
 import models.Reservation;
 import models.ReservationStatus;
 import models.Table;
 import persistence.DataAccessObject;
+import exceptions.ReservationExceptions;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -23,13 +23,13 @@ public class ReservationService {
         this.reservations = reservationDao.loadAll();
     }
 
-    public Reservation createReservation(Customer customer, LocalDateTime reservationTime, int numberOfGuests) throws ReservationException {
+    public Reservation createReservation(Customer customer, LocalDateTime reservationTime, int numberOfGuests) throws ReservationExceptions.NoAvailableTablesException {
         List<Table> availableTables = tableService.getAvailableTables().stream()
                 .filter(table -> table.getCapacity() >= numberOfGuests)
                 .collect(Collectors.toList());
 
         if (availableTables.isEmpty()) {
-            throw new ReservationException("No available tables for the selected time and number of guests.");
+            throw new ReservationExceptions.NoAvailableTablesException("No available tables for the selected time and number of guests.");
         }
 
         Table assignedTable = availableTables.get(0); // Simple assignment, can be improved

@@ -1,8 +1,8 @@
 package services;
 
-import exceptions.OrderException;
 import models.*;
 import persistence.DataAccessObject;
+import exceptions.OrderExceptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +21,10 @@ public class OrderService {
         this.orders = orderDao.loadAll();
     }
 
-    public Order createOrder(Customer customer, int tableNumber) throws OrderException {
+    public Order createOrder(Customer customer, int tableNumber) throws OrderExceptions.InvalidOrderTableException {
         Optional<Table> tableOpt = tableService.getTableByNumber(tableNumber);
         if (tableOpt.isEmpty() || tableOpt.get().isAvailable()) {
-            throw new OrderException("Cannot create order: Table is not occupied or does not exist.");
+            throw new OrderExceptions.InvalidOrderTableException("Cannot create order: Table is not occupied or does not exist.");
         }
 
         Order newOrder = new Order(customer, tableOpt.get());
@@ -33,10 +33,10 @@ public class OrderService {
         return newOrder;
     }
 
-    public void addItemToOrder(Order order, String itemName) throws OrderException {
+    public void addItemToOrder(Order order, String itemName) throws OrderExceptions.InvalidMenuItemException {
         Optional<MenuItem> menuItemOpt = menuService.getMenuItemByName(itemName);
         if (menuItemOpt.isEmpty()) {
-            throw new OrderException("Menu item not found: " + itemName);
+            throw new OrderExceptions.InvalidMenuItemException("Menu item not found: " + itemName);
         }
 
         order.addItem(menuItemOpt.get());
@@ -56,4 +56,3 @@ public class OrderService {
         orderDao.saveAll(orders);
     }
 }
-
