@@ -1,8 +1,9 @@
 package models;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class Reservation {
+public class Reservation implements Serializable {
     private Customer customer;
     private Table table;
     private LocalDateTime reservationTime;

@@ -1,8 +1,9 @@
 package models;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
-public class MenuItem {
+public class MenuItem implements Serializable {
     private String name;
     private String description;
     private BigDecimal price;

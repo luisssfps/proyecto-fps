@@ -1,10 +1,11 @@
 package models;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Order {
+public class Order implements Serializable {
     private Customer customer;
     private Table table;
     private List<MenuItem> items;

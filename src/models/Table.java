@@ -1,6 +1,8 @@
 package models;
 
-public class Table {
+import java.io.Serializable;
+
+public class Table implements Serializable {
     private int tableNumber;
     private int capacity;
     private boolean isAvailable;

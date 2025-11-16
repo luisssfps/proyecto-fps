@@ -1,9 +1,10 @@
 package models;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public class Invoice {
+public class Invoice implements Serializable {
     private Order order;
     private BigDecimal totalAmount;
     private PaymentMethod paymentMethod;
