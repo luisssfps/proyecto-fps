@@ -1,0 +1,34 @@
+@startuml
+' Diagrama de Secuencia: Creación de una Reserva
+
+actor User
+participant Application
+participant ReservationService
+participant TableService
+
+User -> Application: createReservation(customer, time, guests)
+activate Application
+
+Application -> ReservationService: createReservation(customer, time, guests)
+activate ReservationService
+
+ReservationService -> TableService: getAvailableTables()
+activate TableService
+TableService --> ReservationService: availableTables
+deactivate TableService
+
+ReservationService -> ReservationService: findTableFor(guests)
+
+ReservationService -> TableService: updateTableAvailability(tableNumber, false)
+activate TableService
+TableService --> ReservationService: void
+deactivate TableService
+
+ReservationService -> ReservationService: new Reservation(...)
+ReservationService --> Application: reservation
+deactivate ReservationService
+
+Application --> User: Reservation Confirmed
+deactivate Application
+
+@enduml

@@ -137,4 +137,103 @@ Order o-- Table : "tiene un"
 Order o-- MenuItem : "tiene varios"
 Invoice o-- Order : "tiene un"
 
+' --- Capa de Servicios ---
+
+package services {
+  class MenuService {
+    -menuItems: List<MenuItem>
+    -menuItemDao: DataAccessObject<MenuItem>
+
+    +initializeDefaultMenu(): void
+    +addMenuItem(item: MenuItem): void
+    +getMenuItems(): List<MenuItem>
+    +getMenuItemByName(name: String): Optional<MenuItem>
+    +removeMenuItem(name: String): boolean
+    +saveMenuItems(): void
+  }
+
+  class TableService {
+    -tables: List<Table>
+    -tableDao: DataAccessObject<Table>
+
+    +TableService(tableDao: DataAccessObject<Table>)
+    +initializeDefaultTables(): void
+    +getAllTables(): List<Table>
+    +getAvailableTables(): List<Table>
+    +getTableByNumber(tableNumber: int): Table
+    +updateTableAvailability(tableNumber: int, isAvailable: boolean): void
+    +saveTables(): void
+  }
+
+  class ReservationService {
+    -reservations: List<Reservation>
+    -reservationDao: DataAccessObject<Reservation>
+    -tableService: TableService
+
+    +ReservationService(reservationDao: DataAccessObject<Reservation>, tableService: TableService)
+    +createReservation(...): Reservation
+    +cancelReservation(reservation: Reservation): void
+    +getAllReservations(): List<Reservation>
+    +saveReservations(): void
+  }
+
+  class OrderService {
+    -orders: List<Order>
+    -orderDao: DataAccessObject<Order>
+    -menuService: MenuService
+    -tableService: TableService
+
+    +OrderService(orderDao: DataAccessObject<Order>, menuService: MenuService, tableService: TableService)
+    +createOrder(...): Order
+    +addItemToOrder(order: Order, itemName: String): void
+    +updateOrderStatus(order: Order, newStatus: OrderStatus): void
+    +getAllOrders(): List<Order>
+    +saveOrders(): void
+  }
+
+  class InvoiceService {
+    -invoices: List<Invoice>
+    -invoiceDao: DataAccessObject<Invoice>
+    -tableService: TableService
+
+    +InvoiceService(invoiceDao: DataAccessObject<Invoice>, tableService: TableService)
+    +generateInvoice(order: Order, pm: PaymentMethod): Invoice
+    +getAllInvoices(): List<Invoice>
+    +saveInvoices(): void
+  }
+}
+
+' --- Capa de Persistencia ---
+
+package persistence {
+  interface DataAccessObject<T> {
+    +saveAll(items: List<T>): void
+    +loadAll(): List<T>
+  }
+
+  class JsonDao<T> {
+    -filePath: String
+    -gson: Gson
+
+    +JsonDao(filePath: String)
+    +saveAll(items: List<T>): void
+    +loadAll(): List<T>
+  }
+
+  JsonDao ..|> DataAccessObject: "implementa"
+}
+
+' --- Relaciones entre capas ---
+
+MenuService o-- DataAccessObject: "tiene un"
+TableService o-- DataAccessObject: "tiene un"
+ReservationService o-- DataAccessObject: "tiene un"
+OrderService o-- DataAccessObject: "tiene un"
+InvoiceService o-- DataAccessObject: "tiene un"
+
+ReservationService o-- TableService: "tiene un"
+OrderService o-- MenuService: "tiene un"
+OrderService o-- TableService: "tiene un"
+InvoiceService o-- TableService: "tiene un"
+
 @enduml
