@@ -1,4 +1,4 @@
-[README.md](https://github.com/user-attachments/files/23614162/README.md)
+
 # Sistema de Gestión para el Restaurante FPS
 
 ## Problema
