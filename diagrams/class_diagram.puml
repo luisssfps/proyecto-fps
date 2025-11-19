@@ -1,33 +1,18 @@
 @startuml
-' Diagrama de Clases
 
 skinparam classAttributeIconSize 0
-
+' ============================
+'         MODELS
+' ============================
 package models {
   class Customer {
     -name: String
     -contactInfo: String
-    
     +Customer(name: String, contactInfo: String)
     +getName(): String
-    +setName(name:String): void
+    +setName(name: String): void
     +getContactInfo(): String
     +setContactInfo(contactInfo: String): void
-    +toString(): String
-  }
-
-  class Table {
-    -tableNumber: int
-    -capacity: int
-    -isAvailable: boolean
-
-    +Table(tableNumber: int, capacity: int)
-    +getTableNumber(): int
-    +setTableNumber(tableNumber: int): void
-    +getCapacity(): int
-    +setCapacity(capacity: int): void
-    +isAvailable(): boolean
-    +setAvailable(available: boolean): void
     +toString(): String
   }
 
@@ -36,7 +21,6 @@ package models {
     -description: String
     -price: BigDecimal
     -category: String
-
     +MenuItem(name: String, description: String, price: BigDecimal, category: String)
     +getName(): String
     +setName(name: String): void
@@ -49,13 +33,59 @@ package models {
     +toString(): String
   }
 
+  class Table {
+    -tableNumber: int
+    -capacity: int
+    -isAvailable: boolean
+    +Table(tableNumber: int, capacity: int)
+    +getTableNumber(): int
+    +setTableNumber(tableNumber: int): void
+    +getCapacity(): int
+    +setCapacity(capacity: int): void
+    +isAvailable(): boolean
+    +setAvailable(available: boolean): void
+    +toString(): String
+  }
+
+  enum OrderStatus {
+    PENDING
+    IN_PROGRESS
+    COMPLETED
+    SERVED
+    CANCELED
+  }
+
+  class Order {
+    -customer: Customer
+    -table: Table
+    -items: List<MenuItem>
+    -status: OrderStatus
+    +Order(customer: Customer, table: Table)
+    +addItem(item: MenuItem): void
+    +getTotal(): BigDecimal
+    +getCustomer(): Customer
+    +setCustomer(customer: Customer): void
+    +getTable(): Table
+    +setTable(table: Table): void
+    +getItems(): List<MenuItem>
+    +setItems(items: List<MenuItem>): void
+    +getStatus(): OrderStatus
+    +setStatus(status: OrderStatus): void
+    +toString(): String
+  }
+
+  enum ReservationStatus {
+    CONFIRMED
+    CANCELED
+    PENDING
+  }
+
   class Reservation {
     -customer: Customer
     -table: Table
     -reservationTime: LocalDateTime
     -numberOfGuests: int
     -status: ReservationStatus
-
     +Reservation(customer: Customer, table: Table, reservationTime: LocalDateTime, numberOfGuests: int)
     +getCustomer(): Customer
     +setCustomer(customer: Customer): void
@@ -70,36 +100,11 @@ package models {
     +toString(): String
   }
 
-  enum ReservationStatus {
-    CONFIRMED
-    CANCELED
-    PENDING
-  }
-
-  class Order {
-    -customer: Customer
-    -table: Table
-    -status: OrderStatus
-    -items: List<MenuItem>
-
-    +Order(customer: Customer, table: Table, status: OrderStatus, items: List<MenuItem>)
-    +getCustomer(): Customer
-    +setCustomer(customer: Customer): void
-    +getTable(): Table
-    +setTable(table: Table): void
-    +getStatus(): OrderStatus
-    +setStatus(status: OrderStatus): void
-    +addItem(item: MenuItem): void
-    +getTotal(): BigDecimal
-    +toString(): String
-  }
-
-  enum OrderStatus {
-    PENDING
-    IN_PROGRESS
-    COMPLETED
-    SERVED
-    CANCELED
+  enum PaymentMethod {
+    CASH
+    CREDIT_CARD
+    DEBIT_CARD
+    BANK_TRANSFER
   }
 
   class Invoice {
@@ -107,7 +112,6 @@ package models {
     -totalAmount: BigDecimal
     -paymentMethod: PaymentMethod
     -issueDate: LocalDateTime
-
     +Invoice(order: Order, paymentMethod: PaymentMethod)
     +getOrder(): Order
     +setOrder(order: Order): void
@@ -119,62 +123,95 @@ package models {
     +setIssueDate(issueDate: LocalDateTime): void
     +toString(): String
   }
-
-  enum PaymentMethod {
-    CASH
-    CREDIT_CARD
-    DEBIT_CARD
-    BANK_TRANSFER
-  }
 }
 
-' --- Relaciones ---
+' ============================
+'       EXCEPTIONS
+' ============================
+package exceptions {
+  class InvoiceException {
+    +InvoiceException(message: String)
+  }
+  class InvalidInvoiceOrderStatusException {
+    +InvalidInvoiceOrderStatusException(message: String)
+  }
+  InvoiceException <|-- InvalidInvoiceOrderStatusException
 
-Reservation o-- Customer : "tiene un"
-Reservation o-- Table : "tiene un"
-Order o-- Customer : "tiene un"
-Order o-- Table : "tiene un"
-Order o-- MenuItem : "tiene varios"
-Invoice o-- Order : "tiene un"
+  class OrderException {
+    +OrderException(message: String)
+  }
+  class InvalidOrderTableException {
+    +InvalidOrderTableException(message: String)
+  }
+  class InvalidMenuItemException {
+    +InvalidMenuItemException(message: String)
+  }
+  OrderException <|-- InvalidOrderTableException
+  OrderException <|-- InvalidMenuItemException
 
-' --- Capa de Servicios ---
+  class ReservationException {
+    +ReservationException(message: String)
+  }
+  class NoAvailableTablesException {
+    +NoAvailableTablesException(message: String)
+  }
+  ReservationException <|-- NoAvailableTablesException
+}
 
+' ============================
+'       PERSISTENCE
+' ============================
+package persistence {
+  interface DataAccessObject<T> {
+    +saveAll(List<T>): void
+    +loadAll(): List<T>
+  }
+
+  class SerializableDao<T> {
+    -filePath: Path
+    -type: Class<T>
+    +SerializableDao(filePath: String, type: Class<T>)
+    +saveAll(List<T>): void
+    +loadAll(): List<T>
+  }
+
+  DataAccessObject <|.. SerializableDao
+}
+
+' ============================
+'         SERVICES
+' ============================
 package services {
   class MenuService {
     -menuItems: List<MenuItem>
     -menuItemDao: DataAccessObject<MenuItem>
-
+    +MenuService(menuItemDao: DataAccessObject<MenuItem>)
     +initializeDefaultMenu(): void
     +addMenuItem(item: MenuItem): void
     +getMenuItems(): List<MenuItem>
     +getMenuItemByName(name: String): Optional<MenuItem>
     +removeMenuItem(name: String): boolean
-    +saveMenuItems(): void
   }
 
   class TableService {
     -tables: List<Table>
     -tableDao: DataAccessObject<Table>
-
     +TableService(tableDao: DataAccessObject<Table>)
     +initializeDefaultTables(): void
     +getAllTables(): List<Table>
     +getAvailableTables(): List<Table>
-    +getTableByNumber(tableNumber: int): Table
+    +getTableByNumber(tableNumber: int): Optional<Table>
     +updateTableAvailability(tableNumber: int, isAvailable: boolean): void
-    +saveTables(): void
   }
 
   class ReservationService {
     -reservations: List<Reservation>
     -reservationDao: DataAccessObject<Reservation>
     -tableService: TableService
-
     +ReservationService(reservationDao: DataAccessObject<Reservation>, tableService: TableService)
-    +createReservation(...): Reservation
+    +createReservation(customer: Customer, reservationTime: LocalDateTime, numberOfGuests: int): Reservation
     +cancelReservation(reservation: Reservation): void
     +getAllReservations(): List<Reservation>
-    +saveReservations(): void
   }
 
   class OrderService {
@@ -182,58 +219,131 @@ package services {
     -orderDao: DataAccessObject<Order>
     -menuService: MenuService
     -tableService: TableService
-
     +OrderService(orderDao: DataAccessObject<Order>, menuService: MenuService, tableService: TableService)
-    +createOrder(...): Order
+    +createOrder(customer: Customer, tableNumber: int): Order
     +addItemToOrder(order: Order, itemName: String): void
     +updateOrderStatus(order: Order, newStatus: OrderStatus): void
     +getAllOrders(): List<Order>
-    +saveOrders(): void
   }
 
   class InvoiceService {
     -invoices: List<Invoice>
     -invoiceDao: DataAccessObject<Invoice>
     -tableService: TableService
-
     +InvoiceService(invoiceDao: DataAccessObject<Invoice>, tableService: TableService)
-    +generateInvoice(order: Order, pm: PaymentMethod): Invoice
+    +generateInvoice(order: Order, paymentMethod: PaymentMethod): Invoice
     +getAllInvoices(): List<Invoice>
-    +saveInvoices(): void
   }
 }
 
-' --- Capa de Persistencia ---
+' ============================
+'         FACADE
+' ============================
+package facade {
+  interface RestaurantFacade {
+    +getMenuItems(): List<MenuItem>
+    +addMenuItem(item: MenuItem): void
+    +removeMenuItem(name: String): boolean
 
-package persistence {
-  interface DataAccessObject<T> {
-    +saveAll(items: List<T>): void
-    +loadAll(): List<T>
+    +getAllTables(): List<Table>
+    +getAvailableTables(): List<Table>
+    +setTableAvailability(tableNumber: int, available: boolean): void
+
+    +getAllReservations(): List<Reservation>
+    +createReservation(customer: Customer, time: LocalDateTime, guests: int): Reservation
+    +cancelReservation(reservation: Reservation): void
+
+    +getAllOrders(): List<Order>
+    +createOrderFromReservation(reservation: Reservation): Order
+    +createWalkInOrder(customer: Customer, tableNumber: int): Order
+    +addItemToOrder(order: Order, menuItemName: String): void
+    +updateOrderStatus(order: Order, status: OrderStatus): void
+
+    +generateInvoice(order: Order, paymentMethod: PaymentMethod): Invoice
   }
 
-  class JsonDao<T> {
-    -filePath: String
-    -gson: Gson
+  class RestaurantFacadeImpl {
+    -menuService: services.MenuService
+    -tableService: services.TableService
+    -reservationService: services.ReservationService
+    -orderService: services.OrderService
+    -invoiceService: services.InvoiceService
 
-    +JsonDao(filePath: String)
-    +saveAll(items: List<T>): void
-    +loadAll(): List<T>
+    +RestaurantFacadeImpl(menuService: services.MenuService, tableService: services.TableService,
+      reservationService: services.ReservationService, orderService: services.OrderService,
+      invoiceService: services.InvoiceService)
+    +(implements RestaurantFacade methods...)
   }
 
-  JsonDao ..|> DataAccessObject: "implementa"
+  RestaurantFacade <|.. RestaurantFacadeImpl
 }
 
-' --- Relaciones entre capas ---
+' ============================
+'      APPLICATION (CLI)
+' ============================
+package app {
+  class Application {
+    -DATA_PATH: String
+    -facade: facade.RestaurantFacade
+    +main(args: String[]): void
+    -startCLI(): void
+    -manageMenu(): void
+    -manageReservations(): void
+    -manageOrders(): void
+    -promptInt(scanner: Scanner, prompt: String): int
+    -promptBigDecimal(scanner: Scanner, prompt: String): BigDecimal
+    -promptNonEmptyString(scanner: Scanner, prompt: String): String
+    -promptDateTime(scanner: Scanner, prompt: String): LocalDateTime
+    -chooseFromList(scanner: Scanner, options: List<T>, labelProvider: Function<T,String>, header: String): T
+    -promptEnumSelection(scanner: Scanner, enumClass: Class<E>, header: String): E
+  }
+}
 
-MenuService o-- DataAccessObject: "tiene un"
-TableService o-- DataAccessObject: "tiene un"
-ReservationService o-- DataAccessObject: "tiene un"
-OrderService o-- DataAccessObject: "tiene un"
-InvoiceService o-- DataAccessObject: "tiene un"
+' ============================
+'      RELATIONSHIPS (MODELS)
+' ============================
+models.Order o-- models.Customer
+models.Order o-- models.Table
+models.Order "1" o-- "*" models.MenuItem
+models.Invoice o-- models.Order
+models.Reservation o-- models.Customer
+models.Reservation o-- models.Table
 
-ReservationService o-- TableService: "tiene un"
-OrderService o-- MenuService: "tiene un"
-OrderService o-- TableService: "tiene un"
-InvoiceService o-- TableService: "tiene un"
+' ============================
+'      RELATIONSHIPS (SERVICES -> PERSISTENCE)
+' ============================
+services.MenuService o-- persistence.DataAccessObject
+services.TableService o-- persistence.DataAccessObject
+services.ReservationService o-- persistence.DataAccessObject
+services.OrderService o-- persistence.DataAccessObject
+services.InvoiceService o-- persistence.DataAccessObject
+
+' ============================
+'      RELATIONSHIPS (SERVICES <-> SERVICES)
+' ============================
+services.ReservationService o-- services.TableService
+services.OrderService o-- services.MenuService
+services.OrderService o-- services.TableService
+services.InvoiceService o-- services.TableService
+
+' ============================
+'      FACADE -> SERVICES
+' ============================
+facade.RestaurantFacadeImpl o-- services.MenuService
+facade.RestaurantFacadeImpl o-- services.TableService
+facade.RestaurantFacadeImpl o-- services.ReservationService
+facade.RestaurantFacadeImpl o-- services.OrderService
+facade.RestaurantFacadeImpl o-- services.InvoiceService
+
+' ============================
+'      APPLICATION -> FACADE
+' ============================
+app.Application --> facade.RestaurantFacade
+
+' small layout hints for readability
+' left to right grouping
+models -[hidden]-> services
+services -[hidden]-> facade
+facade -[hidden]-> app
 
 @enduml
