@@ -9,23 +9,30 @@ actor "Cocinero" as Cook
 actor "Cajero" as Cashier
 
 rectangle "Sistema Restaurante FPS" {
-  usecase "Gestionar Menú" as UC1
-  usecase "Registrar Reserva" as UC2
-  usecase "Tomar Pedido" as UC3
-  usecase "Actualizar Estado Pedido" as UC4
-  usecase "Generar Factura" as UC5
-  usecase "Gestionar Mesas" as UC6
+  usecase "Consultar Menú" as UC1
+  usecase "Añadir Platillo al Menú" as UC2
+  usecase "Eliminar Platillo del Menú" as UC3
+  usecase "Crear Reserva" as UC4
+  usecase "Cancelar Reserva" as UC5
+  usecase "Crear Pedido" as UC6
+  usecase "Añadir Platillo a Pedido" as UC7
+  usecase "Actualizar Estado de Pedido" as UC8
+  usecase "Generar Factura" as UC9
 }
 
 Receptionist -- UC1
 Receptionist -- UC2
 Receptionist -- UC3
+Receptionist -- UC4
+Receptionist -- UC5
 Receptionist -- UC6
+Receptionist -- UC7
+Receptionist -- UC8
 
-Client -- UC2
+Client -- UC4
 
-Cook -- UC4
+Cook -- UC8
 
-Cashier -- UC5
+Cashier -- UC9
 
 @enduml

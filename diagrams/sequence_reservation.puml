@@ -1,15 +1,19 @@
 @startuml
-' Diagrama de Secuencia: Creación de una Reserva
+' Diagrama de Secuencia: Creación de una Reserva (con Facade)
 
 actor User
 participant Application
+participant RestaurantFacade
 participant ReservationService
 participant TableService
 
 User -> Application: createReservation(customer, time, guests)
 activate Application
 
-Application -> ReservationService: createReservation(customer, time, guests)
+Application -> RestaurantFacade: createReservation(customer, time, guests)
+activate RestaurantFacade
+
+RestaurantFacade -> ReservationService: createReservation(customer, time, guests)
 activate ReservationService
 
 ReservationService -> TableService: getAvailableTables()
@@ -25,8 +29,11 @@ TableService --> ReservationService: void
 deactivate TableService
 
 ReservationService -> ReservationService: new Reservation(...)
-ReservationService --> Application: reservation
+ReservationService --> RestaurantFacade: reservation
 deactivate ReservationService
+
+RestaurantFacade --> Application: reservation
+deactivate RestaurantFacade
 
 Application --> User: Reservation Confirmed
 deactivate Application

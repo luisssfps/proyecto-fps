@@ -1,33 +1,44 @@
 @startuml
-' Diagrama de Secuencia: Pedido y Facturación
+' Diagrama de Secuencia: Pedido y Facturación (con Facade)
 
 actor User
 participant Application
+participant RestaurantFacade
 participant OrderService
 participant InvoiceService
 participant TableService
 
-User -> Application: createOrder(customer, tableNumber)
+User -> Application: createWalkInOrder(customer, tableNumber)
 activate Application
-Application -> OrderService: createOrder(customer, tableNumber)
+Application -> RestaurantFacade: createWalkInOrder(customer, tableNumber)
+activate RestaurantFacade
+RestaurantFacade -> OrderService: createOrder(customer, tableNumber)
 activate OrderService
-OrderService --> Application: newOrder
+OrderService --> RestaurantFacade: newOrder
 deactivate OrderService
+RestaurantFacade --> Application: newOrder
+deactivate RestaurantFacade
 Application --> User: Order Created
 deactivate Application
 
 User -> Application: addItemToOrder(order, "Pizza Margherita")
 activate Application
-Application -> OrderService: addItemToOrder(order, "Pizza Margherita")
+Application -> RestaurantFacade: addItemToOrder(order, "Pizza Margherita")
+activate RestaurantFacade
+RestaurantFacade -> OrderService: addItemToOrder(order, "Pizza Margherita")
 activate OrderService
-OrderService --> Application: void
+OrderService --> RestaurantFacade: void
 deactivate OrderService
+RestaurantFacade --> Application: void
+deactivate RestaurantFacade
 Application --> User: Item Added
 deactivate Application
 
 User -> Application: generateInvoice(order, "CASH")
 activate Application
-Application -> InvoiceService: generateInvoice(order, "CASH")
+Application -> RestaurantFacade: generateInvoice(order, "CASH")
+activate RestaurantFacade
+RestaurantFacade -> InvoiceService: generateInvoice(order, "CASH")
 activate InvoiceService
 
 InvoiceService -> TableService: updateTableAvailability(tableNumber, true)
@@ -35,8 +46,10 @@ activate TableService
 TableService --> InvoiceService: void
 deactivate TableService
 
-InvoiceService --> Application: invoice
+InvoiceService --> RestaurantFacade: invoice
 deactivate InvoiceService
+RestaurantFacade --> Application: invoice
+deactivate RestaurantFacade
 Application --> User: Invoice Generated
 deactivate Application
 
